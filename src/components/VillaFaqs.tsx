@@ -8,7 +8,7 @@ export function VillaFaqs({ faqs }: { faqs: VillaFaq[] }) {
   const [open, setOpen] = useState(0);
 
   return (
-    <div className="py-12 border-t border-beige-dark/40">
+    <div className="py-8 border-t border-beige-dark/40">
       <p className="section-eyebrow inline-flex items-center gap-2">
         <span className="h-px w-6 bg-gold/60" />
         FAQ
@@ -16,7 +16,7 @@ export function VillaFaqs({ faqs }: { faqs: VillaFaq[] }) {
       <h2 className="mt-3 font-display text-3xl md:text-4xl text-forest leading-[1.08] tracking-tight">
         Frequently asked questions
       </h2>
-      <div className="mt-8 divide-y divide-beige-dark/50 border-y border-beige-dark/50">
+      <div className="mt-5 divide-y divide-beige-dark/50 border-y border-beige-dark/50">
         {faqs.map((faq, index) => {
           const isOpen = open === index;
           return (
@@ -25,7 +25,7 @@ export function VillaFaqs({ faqs }: { faqs: VillaFaq[] }) {
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpen(isOpen ? -1 : index)}
-                className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                className="flex w-full items-center justify-between gap-4 py-3.5 text-left"
               >
                 <span className="font-medium text-forest text-base md:text-lg leading-snug">
                   {faq.question}
@@ -35,7 +35,7 @@ export function VillaFaqs({ faqs }: { faqs: VillaFaq[] }) {
                 />
               </button>
               {isOpen ? (
-                <p className="pb-5 pr-8 text-sm md:text-base text-muted leading-relaxed">
+                <p className="pb-4 pr-8 text-sm md:text-base text-muted leading-relaxed">
                   {faq.answer}
                 </p>
               ) : null}

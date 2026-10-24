@@ -223,7 +223,7 @@ body {
 }
 
 .villa-copy {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   color: var(--color-muted);
   line-height: 1.7;
 }
@@ -285,6 +285,10 @@ body {
 .villa-copy a {
   color: var(--color-gold-dark);
   text-decoration: underline;
+}
+
+details[open] .policy-chevron {
+  transform: rotate(180deg);
 }
 
 .villa-copy ul,

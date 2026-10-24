@@ -75,7 +75,7 @@ export function VillaBookingCard({
             {formatPrice(price)}
             <span className="text-base font-sans text-muted ml-1">/ night</span>
           </p>
-          <p className="mt-2 text-xs text-muted">Starting price · all nights + Taxes</p>
+          <p className="mt-2 text-xs font-medium text-gold">Starting price + Taxes</p>
         </div>
         <p style={{display: 'none'}} className="inline-flex items-center gap-1 text-sm text-forest shrink-0">
           <Star className="size-3.5 fill-gold text-gold" />

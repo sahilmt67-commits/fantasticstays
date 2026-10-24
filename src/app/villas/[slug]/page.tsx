@@ -6,6 +6,7 @@ import {
   Bath,
   BedDouble,
   Check,
+  ChevronDown,
   Heart,
   MapPin,
   Share2,
@@ -24,11 +25,32 @@ import { images, type GuestReview } from "@/data/villas";
 import {
   descriptionParagraphs,
   villaDescriptionHtml,
-  houseRuleLabel,
   villaHasPool,
 } from "@/lib/villa-api";
 
 type Props = { params: Promise<{ slug: string }> };
+
+const DEFAULT_CANCELLATION_POLICY = [
+  "45 Days or More Before Check-in: 90% refund of the booking amount.",
+  "44–30 Days Before Check-in: 75% refund of the booking amount.",
+  "29–15 Days Before Check-in: 50% refund of the booking amount.",
+  "Less Than 15 Days Before Check-in: No refund applicable.",
+  "Peak Dates and Long Weekends: All bookings are non-refundable and non-amendable.",
+  "Peak Period (23rd December – 5th January): All bookings are non-refundable and non-amendable.",
+  "Lockdown Policy: In case of a lockdown in Goa or the guest’s city of origin, a 100% refund of the total booking value will be provided.",
+  "Refund Processing: Refunds will be initiated within 5–7 working days from the date of cancellation.",
+  "International Payments: Refund amounts are subject to the prevailing exchange rate at the time of processing.",
+  "Full Payment Requirement: Refunds or credits are applicable only when 100% payment has been received as per the booking policy. No refund or credit will be provided for partially paid bookings.",
+  "Cancellation and Modification Requests: All cancellation or modification requests must be communicated via email. Requests made through other channels will not be considered valid.",
+];
+
+function policyHasText(value: string) {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim().length > 0;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -94,14 +116,11 @@ export default async function VillaDetailPage({ params }: Props) {
     locationProfile?.image || gallery[gallery.length - 1] || images.aerial;
   const guestReviews = villa.guestReviews ?? [];
   const similar = (villa.similar ?? []).slice(0, 3);
-  const houseRules = { ...(villa.houseRules ?? {}) };
-  delete houseRules.cancellation;
-  const rules = {
-    ...(villa.checkInTime ? { check_in: villa.checkInTime } : {}),
-    ...(villa.checkOutTime ? { check_out: villa.checkOutTime } : {}),
-    ...houseRules,
-    maximum_guests: `${villa.guests} guests`,
-  };
+  const cancellationSource = villa.houseRules?.cancellation?.trim() ?? "";
+  const hasCustomCancellation = policyHasText(cancellationSource);
+  const cancellationHtml = hasCustomCancellation ? villaDescriptionHtml(cancellationSource) : "";
+  const rulesContentSource = villa.houseRules?.content?.trim() ?? "";
+  const rulesContentHtml = rulesContentSource ? villaDescriptionHtml(rulesContentSource) : "";
   const bars = reviewBars(guestReviews);
   const nearest = nearby[0];
 
@@ -215,7 +234,7 @@ export default async function VillaDetailPage({ params }: Props) {
       <section className="mx-auto max-w-7xl px-5 md:px-8 pb-12 md:pb-20 grid lg:grid-cols-[1fr_340px] gap-8 lg:gap-14">
         <div className="order-2 lg:order-1 min-w-0">
           <Reveal>
-            <div className="py-10 md:py-12">
+            <div className="py-8">
               <p className="section-eyebrow inline-flex items-center gap-2">
                 <span className="h-px w-6 bg-gold/60" />
                 About This Villa
@@ -263,7 +282,7 @@ export default async function VillaDetailPage({ params }: Props) {
 
           {villa.amenities.length ? (
             <Reveal>
-              <div id="villa-highlights" className="py-12 border-t border-beige-dark/40">
+              <div id="villa-highlights" className="py-8 border-t border-beige-dark/40">
                 <p className="section-eyebrow inline-flex items-center gap-2">
                   <span className="h-px w-6 bg-gold/60" />
                   Villa Highlights
@@ -287,7 +306,7 @@ export default async function VillaDetailPage({ params }: Props) {
           ) : null}
 
           <Reveal>
-            <div className="py-12 border-t border-beige-dark/40">
+            <div className="py-8 border-t border-beige-dark/40">
               <p className="section-eyebrow inline-flex items-center gap-2">
                 <span className="h-px w-6 bg-gold/60" />
                 Where You&apos;ll Sleep
@@ -340,7 +359,7 @@ export default async function VillaDetailPage({ params }: Props) {
 
           {villa.amenityGroups?.length || villa.services?.length ? (
             <Reveal>
-              <div className="py-12 border-t border-beige-dark/40">
+              <div className="py-8 border-t border-beige-dark/40">
                 {villa.amenityGroups?.length ? (
                   <>
                     <p className="section-eyebrow inline-flex items-center gap-2">
@@ -375,7 +394,7 @@ export default async function VillaDetailPage({ params }: Props) {
                 ) : null}
 
                 {villa.services?.length ? (
-                  <div className={villa.amenityGroups?.length ? "mt-16" : ""}>
+                  <div className={villa.amenityGroups?.length ? "mt-10" : ""}>
                     <p className="section-eyebrow inline-flex items-center gap-2">
                       <span className="h-px w-6 bg-gold/60" />
                       {villa.servicesEyebrow || "Private Dining & Services"}
@@ -406,7 +425,71 @@ export default async function VillaDetailPage({ params }: Props) {
           ) : null}
 
           <Reveal>
-            <div className="py-12 border-t border-beige-dark/40">
+              <div className="border-t border-beige-dark/40">
+                <div className="divide-y divide-beige-dark/50">
+                  {rulesContentSource ? (
+                    <details className="group">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
+                        <span className="text-base font-medium leading-snug text-forest">
+                          House Rules
+                        </span>
+                        <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
+                      </summary>
+                      <div className="pb-4 pr-8">
+                        {rulesContentHtml ? (
+                          <div
+                            className="villa-copy !mt-0 text-sm [&_p:last-child]:mb-0"
+                            dangerouslySetInnerHTML={{ __html: rulesContentHtml }}
+                          />
+                        ) : (
+                          <p className="text-sm leading-relaxed text-muted">{rulesContentSource}</p>
+                        )}
+                      </div>
+                    </details>
+                  ) : null}
+
+                  <details className="group">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-base font-medium leading-snug text-forest">
+                        Cancellation Policy
+                      </span>
+                      <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
+                    </summary>
+                    <div className="pb-4 pr-8">
+                      {hasCustomCancellation ? (
+                        cancellationHtml ? (
+                          <div
+                            className="villa-copy !mt-0 text-sm [&_p:last-child]:mb-0"
+                            dangerouslySetInnerHTML={{ __html: cancellationHtml }}
+                          />
+                        ) : (
+                          <p className="text-sm leading-relaxed text-muted">{cancellationSource}</p>
+                        )
+                      ) : (
+                        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
+                          {DEFAULT_CANCELLATION_POLICY.map((item) => {
+                            const splitAt = item.indexOf(": ");
+                            const label = splitAt === -1 ? "" : item.slice(0, splitAt);
+                            const detail = splitAt === -1 ? item : item.slice(splitAt + 2);
+                            return (
+                              <li key={item}>
+                                {label ? (
+                                  <span className="font-medium text-forest">{label}: </span>
+                                ) : null}
+                                {detail}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </Reveal>
+
+          <Reveal>
+            <div className="py-8 border-t border-beige-dark/40">
               <p className="section-eyebrow inline-flex items-center gap-2">
                 <span className="h-px w-6 bg-gold/60" />
                 The Location
@@ -466,7 +549,7 @@ export default async function VillaDetailPage({ params }: Props) {
           </Reveal>
 
           <Reveal>
-            <div style={{display: 'none'}} id="reviews" className="py-12 border-t border-beige-dark/40 scroll-mt-28">
+            <div style={{display: 'none'}} id="reviews" className="py-8 border-t border-beige-dark/40 scroll-mt-28">
               <p className="section-eyebrow inline-flex items-center gap-2">
                 <span className="h-px w-6 bg-gold/60" />
                 Guest Reviews
@@ -535,41 +618,6 @@ export default async function VillaDetailPage({ params }: Props) {
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="py-12 border-t border-beige-dark/40">
-              <p className="section-eyebrow inline-flex items-center gap-2">
-                <span className="h-px w-6 bg-gold/60" />
-                House Rules
-              </p>
-              <h2 className="mt-3 font-display text-3xl md:text-4xl text-forest leading-[1.08] tracking-tight">
-                Good to know before you arrive
-              </h2>
-              <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                {Object.entries(rules).map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-beige-dark/40 bg-ivory/50 px-4 py-3"
-                  >
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-gold">
-                      {label === "maximum_guests" ? "Maximum Occupancy" : houseRuleLabel(label)}
-                    </p>
-                    <p className="mt-1 text-sm text-forest">{value}</p>
-                  </div>
-                ))}
-              </div>
-              {villa.houseRules?.cancellation ? (
-                <div className="mt-10">
-                  <h3 className="font-display text-2xl md:text-3xl text-forest">
-                    Cancellation Policy
-                  </h3>
-                  <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
-                    {villa.houseRules.cancellation}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          </Reveal>
-
           {faqs.length ? (
             <Reveal>
               <VillaFaqs faqs={faqs} />
@@ -594,7 +642,7 @@ export default async function VillaDetailPage({ params }: Props) {
       </section>
 
       {similar.length ? (
-        <section className="bg-beige/50 py-16 md:py-20">
+        <section className="bg-beige/50 py-12 md:py-14">
           <div className="mx-auto max-w-7xl px-5 md:px-8">
             <p className="section-eyebrow inline-flex items-center gap-2">
               <span className="h-px w-6 bg-gold/60" />
