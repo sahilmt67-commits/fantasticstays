@@ -438,11 +438,13 @@ export default async function VillaDetailPage({ params }: Props) {
                       <div className="pb-4 pr-8">
                         {rulesContentHtml ? (
                           <div
-                            className="villa-copy !mt-0 text-sm [&_p:last-child]:mb-0"
+                            className="text-sm leading-relaxed text-muted [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:marker:text-gold [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 [&_li]:leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0"
                             dangerouslySetInnerHTML={{ __html: rulesContentHtml }}
                           />
                         ) : (
-                          <p className="text-sm leading-relaxed text-muted">{rulesContentSource}</p>
+                          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
+                            <li>{rulesContentSource}</li>
+                          </ul>
                         )}
                       </div>
                     </details>
