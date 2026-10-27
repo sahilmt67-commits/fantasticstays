@@ -280,6 +280,72 @@ export default async function VillaDetailPage({ params }: Props) {
             </div>
           </Reveal>
 
+          <Reveal>
+              <div className="border-t border-beige-dark/40">
+                <div className="divide-y divide-beige-dark/50">
+                  {rulesContentSource ? (
+                    <details className="group">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
+                        <span className="text-base font-medium leading-snug text-forest">
+                          House Rules
+                        </span>
+                        <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
+                      </summary>
+                      <div className="pb-4 pr-8">
+                        {rulesContentHtml ? (
+                          <div
+                            className="text-sm leading-relaxed text-muted [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:marker:text-gold [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 [&_li]:leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0"
+                            dangerouslySetInnerHTML={{ __html: rulesContentHtml }}
+                          />
+                        ) : (
+                          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
+                            <li>{rulesContentSource}</li>
+                          </ul>
+                        )}
+                      </div>
+                    </details>
+                  ) : null}
+
+                  <details className="group">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-base font-medium leading-snug text-forest">
+                        Cancellation Policy
+                      </span>
+                      <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
+                    </summary>
+                    <div className="pb-4 pr-8">
+                      {hasCustomCancellation ? (
+                        cancellationHtml ? (
+                          <div
+                            className="villa-copy !mt-0 text-sm [&_p:last-child]:mb-0"
+                            dangerouslySetInnerHTML={{ __html: cancellationHtml }}
+                          />
+                        ) : (
+                          <p className="text-sm leading-relaxed text-muted">{cancellationSource}</p>
+                        )
+                      ) : (
+                        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
+                          {DEFAULT_CANCELLATION_POLICY.map((item) => {
+                            const splitAt = item.indexOf(": ");
+                            const label = splitAt === -1 ? "" : item.slice(0, splitAt);
+                            const detail = splitAt === -1 ? item : item.slice(splitAt + 2);
+                            return (
+                              <li key={item}>
+                                {label ? (
+                                  <span className="font-medium text-forest">{label}: </span>
+                                ) : null}
+                                {detail}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </Reveal>
+
           {villa.amenities.length ? (
             <Reveal>
               <div id="villa-highlights" className="py-8 border-t border-beige-dark/40">
@@ -425,72 +491,6 @@ export default async function VillaDetailPage({ params }: Props) {
           ) : null}
 
           <Reveal>
-              <div className="border-t border-beige-dark/40">
-                <div className="divide-y divide-beige-dark/50">
-                  {rulesContentSource ? (
-                    <details className="group">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
-                        <span className="text-base font-medium leading-snug text-forest">
-                          House Rules
-                        </span>
-                        <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
-                      </summary>
-                      <div className="pb-4 pr-8">
-                        {rulesContentHtml ? (
-                          <div
-                            className="text-sm leading-relaxed text-muted [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ul]:marker:text-gold [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 [&_li]:leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0"
-                            dangerouslySetInnerHTML={{ __html: rulesContentHtml }}
-                          />
-                        ) : (
-                          <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
-                            <li>{rulesContentSource}</li>
-                          </ul>
-                        )}
-                      </div>
-                    </details>
-                  ) : null}
-
-                  <details className="group">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 text-left [&::-webkit-details-marker]:hidden">
-                      <span className="text-base font-medium leading-snug text-forest">
-                        Cancellation Policy
-                      </span>
-                      <ChevronDown className="policy-chevron size-5 shrink-0 text-gold transition-transform duration-300" strokeWidth={1.75} />
-                    </summary>
-                    <div className="pb-4 pr-8">
-                      {hasCustomCancellation ? (
-                        cancellationHtml ? (
-                          <div
-                            className="villa-copy !mt-0 text-sm [&_p:last-child]:mb-0"
-                            dangerouslySetInnerHTML={{ __html: cancellationHtml }}
-                          />
-                        ) : (
-                          <p className="text-sm leading-relaxed text-muted">{cancellationSource}</p>
-                        )
-                      ) : (
-                        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted marker:text-gold">
-                          {DEFAULT_CANCELLATION_POLICY.map((item) => {
-                            const splitAt = item.indexOf(": ");
-                            const label = splitAt === -1 ? "" : item.slice(0, splitAt);
-                            const detail = splitAt === -1 ? item : item.slice(splitAt + 2);
-                            return (
-                              <li key={item}>
-                                {label ? (
-                                  <span className="font-medium text-forest">{label}: </span>
-                                ) : null}
-                                {detail}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </div>
-                  </details>
-                </div>
-              </div>
-            </Reveal>
-
-          <Reveal>
             <div className="py-8 border-t border-beige-dark/40">
               <p className="section-eyebrow inline-flex items-center gap-2">
                 <span className="h-px w-6 bg-gold/60" />
@@ -633,6 +633,7 @@ export default async function VillaDetailPage({ params }: Props) {
             slug={villa.slug}
             villaId={villa.id}
             price={villa.price}
+            discountPercent={villa.discountPercent}
             rating={villa.rating}
             maxGuests={villa.guests}
             petsAllowed={

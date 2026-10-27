@@ -118,6 +118,11 @@ function strOrNull(value: unknown) {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
+function discountLabel(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) return String(value);
+  return strOrNull(value);
+}
+
 function strList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string" && item.length > 0);
@@ -405,9 +410,11 @@ function normalizeVilla(raw: unknown, includeSimilar = true): Villa | null {
     id: String(row.id ?? row.slug),
     slug: str(row.slug),
     name: str(row.name),
-    location: str(row.location, "Goa"),
+    location: str(row.location),
+    locationSlug: strOrNull(row.locationSlug ?? row.location_slug),
     region: str(row.region, "North Goa"),
     price: num(row.price),
+    discountPercent: discountLabel(row.discountPercent ?? row.discount_percent),
     bedrooms: num(row.bedrooms),
     bathrooms: num(row.bathrooms),
     guests: num(row.guests),
@@ -620,7 +627,7 @@ export const getLocations = cache(async (): Promise<GoaLocation[]> => {
     const json = await readJson("/locations");
     const locations = Array.isArray(json.data)
       ? json.data
-          .map((item) => {
+          .map((item): GoaLocation | null => {
             const row = asRecord(item);
             if (!row || !str(row.name)) return null;
             const image = str(row.image);
@@ -631,9 +638,15 @@ export const getLocations = cache(async (): Promise<GoaLocation[]> => {
               image: mediaUrl(image) || images.listingHeroSmall,
               description: str(row.description),
               count: num(row.villas_count),
+              pageType: str(row.pageType || row.page_type, "listing"),
+              href: str(row.href),
+              detailHeading: str(row.detail_heading || row.detailHeading),
+              metaTitle: str(row.metaTitle || row.meta_title),
+              metaDescription: str(row.metaDescription || row.meta_description),
+              metaKeywords: str(row.metaKeywords || row.meta_keywords),
             } satisfies GoaLocation;
           })
-          .filter((item): item is GoaLocation => Boolean(item))
+          .filter((item): item is GoaLocation => item !== null)
       : [];
     if (locations.length) return locations;
   } catch {

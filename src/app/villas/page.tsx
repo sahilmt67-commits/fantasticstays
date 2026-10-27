@@ -29,6 +29,7 @@ export default async function Page() {
         priceBounds={{ min: catalog.priceMin, max: catalog.priceMax }}
         reviews={catalog.reviews}
         hero={hero}
+        singleHeroImage
       />
     </Suspense>
   );

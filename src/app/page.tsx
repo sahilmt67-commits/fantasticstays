@@ -16,7 +16,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
 import { VillaCard } from "@/components/VillaCard";
 import { getHomeVillas } from "@/app/actions/villas";
-import { images } from "@/data/villas";
+import { images, locationHref } from "@/data/villas";
 import { imageAlt } from "@/lib/image-alt";
 import { getHomeHero } from "@/lib/villa-api";
 import { BRAND } from "@/lib/brand";
@@ -185,7 +185,7 @@ export default async function HomePage() {
             {locations.map((loc, i) => (
               <Reveal key={loc.name} delay={i * 50}>
                 <Link
-                  href={`/villas?location=${encodeURIComponent(loc.name)}`}
+                  href={locationHref(loc)}
                   className="group relative block aspect-[4/5] overflow-hidden rounded-2xl"
                 >
                   <OptImage

@@ -14,6 +14,7 @@ import {
 import { BrandLogo } from "@/components/BrandLogo";
 import { BRAND } from "@/lib/brand";
 import type { SiteFooter } from "@/lib/villa-api";
+import { locationHref, type GoaLocation } from "@/data/villas";
 import { applyContactValidity, emailError } from "@/lib/form-validation";
 
 const locations = [
@@ -40,7 +41,13 @@ const socialIcons = {
   YouTube: Youtube,
 } as const;
 
-export function Footer({ settings }: { settings: SiteFooter }) {
+export function Footer({
+  settings,
+  locations: areaLocations = [],
+}: {
+  settings: SiteFooter;
+  locations?: GoaLocation[];
+}) {
   const [emailMessage, setEmailMessage] = useState("");
 
   return (
@@ -143,13 +150,23 @@ export function Footer({ settings }: { settings: SiteFooter }) {
             Villa Locations
           </p>
           <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-ivory/75">
-            {locations.map((loc) => (
-              <li key={loc}>
+            {(areaLocations.length
+              ? areaLocations
+              : locations.map((name) => ({
+                  name,
+                  slug: name.toLowerCase().replace(/\s+/g, "-"),
+                  region: "",
+                  image: "",
+                  description: "",
+                  count: 0,
+                }))
+            ).map((loc) => (
+              <li key={loc.name}>
                 <Link
-                  href={`/villas?location=${encodeURIComponent(loc)}`}
+                  href={locationHref(loc)}
                   className="hover:text-ivory transition"
                 >
-                  {loc}
+                  {loc.name}
                 </Link>
               </li>
             ))}

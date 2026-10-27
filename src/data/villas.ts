@@ -49,8 +49,10 @@ export type Villa = {
   slug: string;
   name: string;
   location: string;
+  locationSlug?: string | null;
   region: string;
   price: number;
+  discountPercent?: string | null;
   bedrooms: number;
   bathrooms: number;
   guests: number;
@@ -108,7 +110,22 @@ export type GoaLocation = {
   image: string;
   description: string;
   count: number;
+  pageType?: string;
+  href?: string;
+  detailHeading?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
 };
+
+export function locationHref(
+  location: Pick<GoaLocation, "name" | "slug" | "href" | "pageType">
+): string {
+  if (location.pageType === "luxury_rental") {
+    return location.href || `/luxury-rental/villas-in-${location.slug}`;
+  }
+  return `/villas?location=${encodeURIComponent(location.name)}`;
+}
 
 export type PublicReview = {
   id: number;

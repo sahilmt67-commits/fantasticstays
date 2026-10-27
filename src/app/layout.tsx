@@ -8,7 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SystemStatusProvider } from "@/components/providers/SystemStatusProvider";
 import { fetchSystemStatus } from "@/app/actions/systemStatus";
 import { BRAND } from "@/lib/brand";
-import { getSiteFooter } from "@/lib/villa-api";
+import { getLocations, getSiteFooter } from "@/lib/villa-api";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,9 +38,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [footer, systemStatus] = await Promise.all([
+  const [footer, systemStatus, locations] = await Promise.all([
     getSiteFooter(),
     fetchSystemStatus(),
+    getLocations(),
   ]);
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
@@ -59,7 +60,7 @@ export default async function RootLayout({
               whatsappHref={footer.whatsappHref}
             />
             {children}
-            <Footer settings={footer} />
+            <Footer settings={footer} locations={locations} />
             <FloatingWhatsApp href={footer.whatsappHref} />
           </BookingEnquiryProvider>
         </SystemStatusProvider>

@@ -20,6 +20,7 @@ export function VillaBookingCard({
   slug,
   villaId,
   price,
+  discountPercent = null,
   rating,
   maxGuests,
   petsAllowed = false,
@@ -28,6 +29,7 @@ export function VillaBookingCard({
   slug: string;
   villaId: string;
   price: number;
+  discountPercent?: string | null;
   rating: number;
   maxGuests: number;
   petsAllowed?: boolean;
@@ -77,6 +79,13 @@ export function VillaBookingCard({
           </p>
           <p className="mt-2 text-xs font-medium text-gold">Starting price + Taxes</p>
         </div>
+        {discountPercent ? (
+          <div className="shrink-0 max-w-[11rem] rounded-2xl bg-gradient-to-br from-[#E8C97A] via-[#A9853C] to-[#6E5424] p-[1.5px] shadow-[0_14px_28px_-16px_rgba(169,133,60,0.95)]">
+            <div className="rounded-[14px] bg-[#1F3528] px-3 py-2.5 text-center">
+              <p className="font-display text-lg leading-tight text-[#F8E7C0] break-words">{discountPercent}</p>
+            </div>
+          </div>
+        ) : null}
         <p style={{display: 'none'}} className="inline-flex items-center gap-1 text-sm text-forest shrink-0">
           <Star className="size-3.5 fill-gold text-gold" />
           {rating}

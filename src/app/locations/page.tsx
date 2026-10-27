@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { OptImage } from "@/components/OptImage";
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
-import { locations } from "@/data/villas";
+import { locationHref } from "@/data/villas";
 import { imageAlt } from "@/lib/image-alt";
+import { getLocations } from "@/lib/villa-api";
 
 export const metadata: Metadata = {
   title: "Villa Locations in Goa",
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
     "Browse luxury villas across Candolim, Assagao, Anjuna, Vagator, Morjim, Siolim and South Goa.",
 };
 
-export default function LocationsPage() {
+export default async function LocationsPage() {
+  const locations = await getLocations();
   return (
     <>
       <section className="pt-36 md:pt-40 pb-16 md:pb-24 bg-ivory">
@@ -26,7 +28,7 @@ export default function LocationsPage() {
             {locations.map((loc, i) => (
               <Reveal key={loc.name} delay={i * 40}>
                 <Link
-                  href={`/villas?location=${encodeURIComponent(loc.name)}`}
+                  href={locationHref(loc)}
                   className="group relative block aspect-[4/5] overflow-hidden rounded-2xl"
                 >
                   <OptImage

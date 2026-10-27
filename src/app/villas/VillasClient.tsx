@@ -32,6 +32,7 @@ import {
   type PublicReview,
   type Villa,
 } from "@/data/villas";
+import { locationHref } from "@/data/villas";
 import { imageAlt } from "@/lib/image-alt";
 import type { ListingHero } from "@/lib/villa-api";
 import { BRAND } from "@/lib/brand";
@@ -157,6 +158,10 @@ export default function VillasListingPage({
   priceBounds,
   reviews,
   hero,
+  placeName = "Goa",
+  presetLocation = "",
+  singleHeroImage = false,
+  hideHeroStats = false,
 }: {
   villas: Villa[];
   locations: GoaLocation[];
@@ -164,13 +169,17 @@ export default function VillasListingPage({
   priceBounds: { min: number; max: number };
   reviews: PublicReview[];
   hero: ListingHero;
+  placeName?: string;
+  presetLocation?: string;
+  singleHeroImage?: boolean;
+  hideHeroStats?: boolean;
 }) {
   const areaNames = locations
     .map((location) => location.name)
     .filter((name) => name !== "North Goa" && name !== "South Goa");
   const priceStep = priceBounds.max - priceBounds.min > 20000 ? 500 : 100;
   const searchParams = useSearchParams();
-  const initialLocation = searchParams.get("location") || "";
+  const initialLocation = presetLocation || searchParams.get("location") || "";
   const initialGuests = Number(searchParams.get("guests") || 0);
   const initialBedrooms = Number(
     String(searchParams.get("bedrooms") || "0").replace("+", "")
@@ -298,6 +307,30 @@ export default function VillasListingPage({
     setGuests(Number(barGuests) || 0);
     setBedrooms(barBeds ? Number(barBeds) : 0);
   }
+
+  const displayHero = useMemo(() => {
+    const selectedName = areas.length === 1 ? areas[0] : "";
+    const selected = selectedName
+      ? locations.find(
+          (location) => location.name.toLowerCase() === selectedName.toLowerCase()
+        )
+      : undefined;
+    if (!selected) return hero;
+    return {
+      ...hero,
+      eyebrow: `Handpicked Villas · ${selected.region || selected.name}`,
+      heading:
+        selected.detailHeading?.trim() ||
+        `Luxury Villas in ${selected.name} for an Exceptional Private Stay`,
+      paragraph1:
+        selected.description?.trim() ||
+        `Explore our handpicked collection of luxury villas in ${selected.name}.`,
+      paragraph2: "",
+      badge: [selected.name, selected.region].filter(Boolean).join(" · ").toUpperCase(),
+      image: selected.image || hero.image,
+      imageSmall: selected.image || hero.imageSmall,
+    };
+  }, [areas, hero, locations]);
 
   const activeGuide = GUIDE.find((g) => g.id === guideTab) || GUIDE[0];
   const fallbackTestimonials = [
@@ -605,37 +638,42 @@ export default function VillasListingPage({
   return (
     <>
       <div className="bg-[#F6F1E6] min-h-screen pt-[6.5rem] md:pt-[7.25rem]">
+        {placeName === "Goa" ? null : (
         <div className="mx-auto w-[min(1240px,92%)] pt-6 pb-2">
           <p className="text-sm text-[#5C6152]">
             <Link href="/" className="hover:text-[#1F3528]">
               Home
             </Link>{" "}
             <span className="mx-1">&gt;</span>{" "}
-            <span className="text-[#1F3528]">Villas in Goa</span>
+            <span className="text-[#1F3528]">Villas in {placeName}</span>
           </p>
         </div>
+        )}
 
         {/* Hero */}
         <section className="mx-auto w-[min(1240px,92%)] pb-14 md:pb-16 pt-6 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <Reveal>
             <div className="inline-flex items-center gap-3 text-[0.7rem] font-bold tracking-[0.24em] uppercase text-[#A9853C]">
               <span className="w-[30px] h-px bg-[#A9853C]" />
-              {hero.eyebrow}
+              {displayHero.eyebrow}
             </div>
             <h1 className="mt-5 font-display text-[clamp(2.4rem,4.6vw,3.75rem)] leading-[1.06] text-[#1F3528] font-medium">
-              {hero.heading}
+              {displayHero.heading}
             </h1>
             <p className="mt-6 text-[#5C6152] leading-relaxed [&_strong]:font-semibold [&_strong]:text-[#1F3528]">
-              <RichText html={hero.paragraph1} />
+              <RichText html={displayHero.paragraph1} />
             </p>
-            <p className="mt-4 text-[#5C6152] leading-relaxed [&_strong]:font-semibold [&_strong]:text-[#1F3528]">
-              <RichText html={hero.paragraph2} />
-            </p>
+            {displayHero.paragraph2 ? (
+              <p className="mt-4 text-[#5C6152] leading-relaxed [&_strong]:font-semibold [&_strong]:text-[#1F3528]">
+                <RichText html={displayHero.paragraph2} />
+              </p>
+            ) : null}
+            {hideHeroStats ? null : (
             <div className="mt-9 flex flex-wrap divide-x divide-[#D3C7A8]">
               {[
-                [String(villas.length), hero.villasLabel],
-                [`${averageRating} ★`, hero.ratingLabel],
-                [hero.response, hero.responseLabel],
+                [String(villas.length), displayHero.villasLabel],
+                [`${averageRating} ★`, displayHero.ratingLabel],
+                [displayHero.response, displayHero.responseLabel],
               ].map(([stat, label]) => (
                 <div key={label} className="px-6 first:pl-0">
                   <p className="font-display text-3xl text-[#1F3528]">{stat}</p>
@@ -645,15 +683,16 @@ export default function VillasListingPage({
                 </div>
               ))}
             </div>
+            )}
           </Reveal>
 
           <Reveal delay={80}>
             <div className="relative max-w-lg ml-auto">
-              <div className="absolute -right-3 top-8 bottom-12 w-[90%] border border-[#A9853C]/45 rounded-[1.5rem] pointer-events-none" />
+              <div className={`absolute -right-3 top-8 ${singleHeroImage ? "bottom-8" : "bottom-12"} w-[90%] border border-[#A9853C]/45 rounded-[1.5rem] pointer-events-none`} />
               <div className="relative aspect-[4/5] rounded-[1.5rem] overflow-hidden shadow-[0_22px_55px_-24px_rgba(35,40,31,.28)]">
                 <OptImage
-                  src={hero.image}
-                  alt={imageAlt(hero.image, hero.heading)}
+                  src={displayHero.image}
+                  alt={imageAlt(displayHero.image, displayHero.heading)}
                   fill
                   className="object-cover"
                   sizes="50vw"
@@ -661,18 +700,20 @@ export default function VillasListingPage({
                 />
                 <div className="absolute top-5 right-5 rounded-full bg-[#FCFAF4] px-4 py-2 text-[0.68rem] tracking-[0.12em] uppercase text-[#1F3528] shadow flex items-center gap-2 border border-[#E4DBC5]">
                   <MapPin className="size-3.5 text-[#A9853C]" />
-                  {hero.badge}
+                  {displayHero.badge}
                 </div>
               </div>
+              {singleHeroImage ? null : (
               <div className="absolute -bottom-5 left-4 md:left-8 w-36 md:w-44 aspect-[4/5] rounded-2xl overflow-hidden border-4 border-[#F6F1E6] shadow-xl">
                 <OptImage
-                  src={hero.imageSmall}
-                  alt={imageAlt(hero.imageSmall, hero.badge)}
+                  src={displayHero.imageSmall}
+                  alt={imageAlt(displayHero.imageSmall, displayHero.badge)}
                   fill
                   className="object-cover"
                   sizes="180px"
                 />
               </div>
+              )}
             </div>
           </Reveal>
         </section>
@@ -797,7 +838,7 @@ export default function VillasListingPage({
             <div>
               <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <h2 className="font-display text-[clamp(1.45rem,2.4vw,1.9rem)] text-[#1F3528]">
-                  {filtered.length} Luxury Villas Available in Goa
+                  {filtered.length} Luxury Villas Available in {placeName}
                 </h2>
                 <div className="flex items-center gap-3">
                   <div className="hidden sm:flex rounded-full border border-[#E4DBC5] overflow-hidden">
@@ -941,14 +982,9 @@ export default function VillasListingPage({
             </Reveal>
             <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[140px] md:auto-rows-[160px]">
               {locations.slice(0, 8).map((loc, i) => (
-                <button
+                <Link
                   key={loc.name}
-                  type="button"
-                  onClick={() => {
-                    setAreas([loc.name]);
-                    setPage(1);
-                    window.scrollTo({ top: 700, behavior: "smooth" });
-                  }}
+                  href={locationHref(loc)}
                   className={clsx(
                     "group relative overflow-hidden rounded-2xl text-left",
                     i === 0 && "row-span-2 col-span-1",
@@ -972,7 +1008,7 @@ export default function VillasListingPage({
                       Villas in {loc.name}
                     </p>
                   </div>
-                </button>
+                </Link>
               ))}
             </div>
           </div>
